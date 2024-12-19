@@ -261,7 +261,7 @@ async def analyze_food(file: UploadFile = File(...)):
             if not isinstance(result.get('suggestions'), list):
                 raise ValueError("suggestions必须是数组")
             
-            logger.info("数据处��完成")
+            logger.info("数据处理完成")
             logger.debug(f"最终结果: {json.dumps(result, indent=2, ensure_ascii=False)}")
             
             return result

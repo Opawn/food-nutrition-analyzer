@@ -12,9 +12,8 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-4">联系方式</h3>
             <ul className="space-y-2 text-gray-600">
-              <li>邮箱：contact@example.com</li>
-              <li>电话：123-456-7890</li>
-              <li>地址：某某市某某区某某街道</li>
+              <li>邮箱：chengbuza@126.com</li>
+              <li>地址：倒悬山</li>
             </ul>
           </div>
           <div>

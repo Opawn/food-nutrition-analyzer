@@ -4,9 +4,10 @@ import { FaCloudUploadAlt } from 'react-icons/fa'
 interface UploadSectionProps {
   onUpload: (file: File) => void;
   isAnalyzing: boolean;
+  onClear: () => void;
 }
 
-const UploadSection = ({ onUpload, isAnalyzing }: UploadSectionProps) => {
+const UploadSection = ({ onUpload, isAnalyzing, onClear }: UploadSectionProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +40,11 @@ const UploadSection = ({ onUpload, isAnalyzing }: UploadSectionProps) => {
     e.preventDefault();
   };
 
+  const handleClear = () => {
+    setPreviewUrl(null);
+    onClear();
+  };
+
   return (
     <div className="card mb-8">
       <div
@@ -53,13 +59,22 @@ const UploadSection = ({ onUpload, isAnalyzing }: UploadSectionProps) => {
               alt="Preview"
               className="max-h-96 mx-auto rounded-lg"
             />
-            {isAnalyzing && (
+            {isAnalyzing ? (
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
                 <div className="text-white">
                   <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mb-4"></div>
                   <p>正在分析...</p>
                 </div>
               </div>
+            ) : (
+              <button
+                onClick={handleClear}
+                className="absolute top-2 right-2 bg-white bg-opacity-75 hover:bg-opacity-100 text-gray-600 hover:text-gray-800 rounded-full p-2 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             )}
           </div>
         ) : (
@@ -76,7 +91,7 @@ const UploadSection = ({ onUpload, isAnalyzing }: UploadSectionProps) => {
                 </button>
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                支持 JPG、PNG 格式的图片
+                文件大小不超过20MB
               </p>
             </div>
           </div>
