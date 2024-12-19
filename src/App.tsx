@@ -104,11 +104,16 @@ function App() {
     }
   };
 
+  const handleClear = () => {
+    setAnalysisData(null);
+    setError(null);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       <main className="container py-8 flex-grow">
-        <UploadSection onUpload={handleImageUpload} isAnalyzing={isAnalyzing} />
+        <UploadSection onUpload={handleImageUpload} isAnalyzing={isAnalyzing} onClear={handleClear} />
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
