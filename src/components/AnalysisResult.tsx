@@ -1,15 +1,17 @@
 import { FaUtensils, FaFireAlt, FaListUl, FaLightbulb } from 'react-icons/fa'
 
-interface AnalysisData {
-  foodType: string;
-  ingredients: string[];
-  calories: number;
-  nutrition: {
+export interface AnalysisData {
+  isFood: boolean;
+  foodType?: string;
+  ingredients?: string[];
+  calories?: number;
+  nutrition?: {
     protein: number;
     carbs: number;
     fat: number;
   };
-  suggestions: string[];
+  suggestions?: string[];
+  message?: string;
 }
 
 interface AnalysisResultProps {
@@ -17,6 +19,11 @@ interface AnalysisResultProps {
 }
 
 const AnalysisResult = ({ data }: AnalysisResultProps) => {
+  // 如果不是食物图片，不显示分析结果
+  if (!data.isFood) {
+    return null;
+  }
+
   const nutrition = data?.nutrition || { protein: 0, carbs: 0, fat: 0 };
   const ingredients = data?.ingredients || [];
   const suggestions = data?.suggestions || [];

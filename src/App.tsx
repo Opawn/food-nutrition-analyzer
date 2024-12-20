@@ -5,17 +5,8 @@ import UploadSection from './components/UploadSection'
 import AnalysisResult from './components/AnalysisResult'
 import Footer from './components/Footer'
 
-interface AnalysisData {
-  foodType: string;
-  ingredients: string[];
-  calories: number;
-  nutrition: {
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  suggestions: string[];
-}
+// 从 AnalysisResult 组件导入类型
+import type { AnalysisData } from './components/AnalysisResult'
 
 function App() {
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
@@ -43,12 +34,12 @@ function App() {
 
     const makeRequest = async (): Promise<any> => {
       try {
-        const response = await axios.post('http://localhost:8888/api/analyze', formData, {
+        const apiUrl = '/api/analyze'; // 直接使用相对路径
+        const response = await axios.post(apiUrl, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
-          withCredentials: true,
-          timeout: 120000, // 增加到120秒
+          timeout: 120000,
         });
         return response;
       } catch (error) {
@@ -66,9 +57,16 @@ function App() {
       const response = await makeRequest();
 
       if (response.data && typeof response.data === 'object') {
-        const { foodType, ingredients, calories, nutrition, suggestions } = response.data;
+        // 检查是否是非食物图片的响应
+        if (response.data.isFood === false) {
+          setError(response.data.message || '请上传食物图片');
+          return;
+        }
+
+        // 验证数据格式
+        const { isFood, foodType, ingredients, calories, nutrition, suggestions } = response.data;
         
-        if (!foodType || !Array.isArray(ingredients) || 
+        if (!isFood || !foodType || !Array.isArray(ingredients) || 
             typeof calories !== 'number' || 
             !nutrition || typeof nutrition !== 'object' || 
             !Array.isArray(suggestions)) {
@@ -80,22 +78,31 @@ function App() {
         throw new Error('服务器返回的数据格式不正确');
       }
     } catch (err) {
-      console.error('Error analyzing image:', err);
       if (err instanceof AxiosError) {
-        if (err.code === 'ECONNABORTED') {
-          setError('请求超时，请尝试使用更小的图片或稍后重试');
-        } else if (err.code === 'ERR_NETWORK') {
-          setError('网络连接错误，请确保后端服务器正在运行');
-        } else if (err.response) {
-          setError(err.response.data?.detail || '请求失败，请重试');
-        } else if (err.request) {
-          setError('无法连接到服务器，请检查网络连接');
+        // 处理预期的错误情况
+        if (err.response?.status === 400 && err.response.data?.isFood === false) {
+          // 这是预期的非食物图片响应，只设置错误消息
+          setError(err.response.data.message || '请上传食物图片');
         } else {
-          setError('请求发送失败，请重试');
+          // 处理其他错误情况
+          console.error('Error analyzing image:', err);
+          if (err.code === 'ECONNABORTED') {
+            setError('请求超时，请尝试使用更小的图片或稍后重试');
+          } else if (err.code === 'ERR_NETWORK') {
+            setError('网络连接错误，请确保后端服务器正在运行');
+          } else if (err.response) {
+            setError(err.response.data?.error || '请求失败，请重试');
+          } else if (err.request) {
+            setError('无法连接到服务器，请检查网络连接');
+          } else {
+            setError('请求发送失败，请重试');
+          }
         }
       } else if (err instanceof Error) {
+        console.error('Error analyzing image:', err);
         setError(err.message);
       } else {
+        console.error('Error analyzing image:', err);
         setError('分析图片时出错，请重试');
       }
       setAnalysisData(null);

@@ -1,11 +1,36 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true, // 监听所有地址
-    port: 5173, // 指定端口
+    host: true,
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+        },
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  }
 })

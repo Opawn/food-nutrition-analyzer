@@ -52,12 +52,15 @@ app = FastAPI()
 # 配置CORS - 确保这段代码在所有路由之前
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],  # 添加所有允许的前端源
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://你的vercel域名.vercel.app",  # 添加 Vercel 域名
+        "https://你的自定义域名"  # 如果有自定义域名
+    ],
     allow_credentials=True,
-    allow_methods=["*"],  # 允许所有方法
-    allow_headers=["*"],  # 允许所有头部
-    expose_headers=["*"],  # 暴露所有头部
-    max_age=3600,  # 预检请求的有效期
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.post("/api/analyze")
@@ -73,7 +76,7 @@ async def analyze_food(file: UploadFile = File(...)):
         if not secret_id or not secret_key:
             raise ValueError("缺少必要的环境变量")
             
-        # 检查���件大小
+        # 检查文件大小
         contents = await file.read()
         file_size = len(contents)
         logger.info(f"上传的文件大小: {file_size / (1024*1024):.2f}MB")
