@@ -28,26 +28,27 @@ export const config = {
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Max-Age': '86400'
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Max-Age', '86400');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    return res.status(204).end();
-  }
-
   // Set CORS headers for all responses
   Object.entries(corsHeaders).forEach(([key, value]) => {
     res.setHeader(key, value);
   });
 
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: '只支持POST请求' });
+    return res.status(405).json({ 
+      error: '只支持POST请求',
+      method: req.method,
+      allowedMethods: ['POST']
+    });
   }
 
   try {
@@ -143,7 +144,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 2. foodType必须是具体的食物名称
 3. calories必须是整数（单位：千卡）
 4. nutrition中的值必须是小数（单位：克）
-5. 建议应该包含营养价值和��用建议
+5. 建议应该包含营养价值和用建议
 6. 不要返回任何其他字段或说明文字`
             },
             {
