@@ -67,21 +67,33 @@ function App() {
       reader.readAsDataURL(file);
       
       const base64Data = await base64Promise;
-      
-      const response = await axios.post('/api/analyze', { file: base64Data }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 120000,
-      });
+
+      console.log('Sending request to API...');
+      const response = await axios.post('/api/analyze', 
+        { file: base64Data },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 120000,
+          validateStatus: (status) => {
+            return status < 500; // 只有状态码大于等于500时才认为是错误
+          }
+        }
+      );
+
+      console.log('Received response:', response.status);
+
+      if (response.status === 400 && response.data?.isFood === false) {
+        setError(response.data.message || '请上传食物图片');
+        return;
+      }
+
+      if (response.status !== 200) {
+        throw new Error(response.data?.error || '请求失败，请重试');
+      }
 
       if (response.data && typeof response.data === 'object') {
-        // 检查是否是非食物图片的响应
-        if (response.data.isFood === false) {
-          setError(response.data.message || '请上传食物图片');
-          return;
-        }
-
         // 验证数据格式
         const { isFood, foodType, ingredients, calories, nutrition, suggestions } = response.data;
         
