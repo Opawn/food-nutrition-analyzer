@@ -24,31 +24,15 @@ export const config = {
   },
 };
 
-// CORS headers
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Max-Age': '86400'
-};
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Set CORS headers for all responses
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
-
-  // Handle CORS preflight requests
+  // Handle preflight request
   if (req.method === 'OPTIONS') {
-    return res.status(204).end();
+    return res.status(200).end();
   }
 
+  // Only allow POST requests
   if (req.method !== 'POST') {
-    return res.status(405).json({ 
-      error: '只支持POST请求',
-      method: req.method,
-      allowedMethods: ['POST']
-    });
+    return res.status(405).json({ error: '只支持POST请求' });
   }
 
   try {
@@ -144,7 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 2. foodType必须是具体的食物名称
 3. calories必须是整数（单位：千卡）
 4. nutrition中的值必须是小数（单位：克）
-5. 建议应该包含营养价值和用建议
+5. 建议应该包含营养价值和食用建议
 6. 不要返回任何其他字段或说明文字`
             },
             {
