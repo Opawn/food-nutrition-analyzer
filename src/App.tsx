@@ -57,13 +57,20 @@ function App() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const response = await axios.post('/api/analyze', formData, {
+      // 读取文件为 base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(file);
+      
+      const base64Data = await base64Promise;
+      
+      const response = await axios.post('/api/analyze', { file: base64Data }, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
         timeout: 120000,
       });
