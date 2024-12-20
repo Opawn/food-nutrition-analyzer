@@ -90,8 +90,11 @@ function App() {
             setError('请求超时，请尝试使用更小的图片或稍后重试');
           } else if (err.code === 'ERR_NETWORK') {
             setError('网络连接错误，请确保后端服务器正在运行');
+          } else if (err.response?.status === 404) {
+            setError('API 服务不可用，请稍后重试');
           } else if (err.response) {
-            setError(err.response.data?.error || '请求失败，请重试');
+            const errorMessage = err.response.data?.error || err.response.data?.message || '请求失败，请重试';
+            setError(typeof errorMessage === 'string' ? errorMessage : '请求失败，请重试');
           } else if (err.request) {
             setError('无法连接到服务器，请检查网络连接');
           } else {
@@ -103,7 +106,7 @@ function App() {
         setError(err.message);
       } else {
         console.error('Error analyzing image:', err);
-        setError('分析图片时出错，请重试');
+        setError(typeof err === 'string' ? err : '分析图片时出错，请重试');
       }
       setAnalysisData(null);
     } finally {
