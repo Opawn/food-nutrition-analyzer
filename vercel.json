@@ -16,6 +16,17 @@
   "routes": [
     {
       "src": "/api/(.*)",
+      "methods": ["POST", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
+      },
+      "dest": "/api/$1",
+      "continue": true
+    },
+    {
+      "src": "/api/(.*)",
       "dest": "/api/$1"
     },
     {

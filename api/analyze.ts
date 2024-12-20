@@ -24,7 +24,28 @@ export const config = {
   },
 };
 
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Max-Age', '86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(204).end();
+  }
+
+  // Set CORS headers for all responses
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: '只支持POST请求' });
   }
@@ -33,6 +54,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 检查环境变量
     if (!process.env.TENCENT_SECRET_ID || !process.env.TENCENT_SECRET_KEY) {
       throw new Error("缺少必要的环境变量");
+    }
+
+    // 检查请求体
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({ error: "请求格式不正确" });
     }
 
     // 处理上传的图片
@@ -117,7 +143,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 2. foodType必须是具体的食物名称
 3. calories必须是整数（单位：千卡）
 4. nutrition中的值必须是小数（单位：克）
-5. 建议应该包含营养价值和食用建议
+5. 建议应该包含营养价值和��用建议
 6. 不要返回任何其他字段或说明文字`
             },
             {
