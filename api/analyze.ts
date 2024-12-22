@@ -105,7 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 使用sharp处理图片
     const processedImage = await sharp(imageBuffer)
       .resize(4096, 4096, { fit: 'inside' })
-      .jpeg({ quality: 100 })
+      .jpeg({ quality: 80 })
       .toBuffer();
 
     // 转换为base64
