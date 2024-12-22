@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "api/**/*.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 60
+      }
     },
     {
       "src": "package.json",
@@ -26,10 +29,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "functions": {
-    "api/analyze.ts": {
-      "maxDuration": 60
-    }
-  }
+  ]
 }
