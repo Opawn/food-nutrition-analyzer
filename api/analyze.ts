@@ -39,6 +39,21 @@ const setCorsHeaders = (res: VercelResponse) => {
   });
 };
 
+// 添加超时控制函数
+const withTimeout = async (promise: Promise<any>, timeoutMs: number) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  
+  try {
+    const result = await promise;
+    clearTimeout(timeoutId);
+    return result;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers for all responses
   setCorsHeaders(res);
@@ -102,11 +117,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "图片大小不能超过20MB" });
     }
 
-    // 使用sharp处理图片
-    const processedImage = await sharp(imageBuffer)
-      .resize(4096, 4096, { fit: 'inside' })
-      .jpeg({ quality: 80 })
-      .toBuffer();
+    // 使用 withTimeout 包装图片处理
+    const processedImage = await withTimeout(
+      sharp(imageBuffer)
+        .resize(4096, 4096, { fit: 'inside' })
+        .jpeg({ quality: 80 })
+        .toBuffer(),
+      30000 // 30 seconds timeout for image processing
+    );
 
     // 转换为base64
     const base64Image = processedImage.toString('base64');
@@ -179,8 +197,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         TopP: 0.1
       };
 
-      // 调用API
-      const response = await client.ChatCompletions(params);
+      // 使用 withTimeout 包装 API 调用
+      const response = await withTimeout(
+        client.ChatCompletions(params),
+        50000 // 25 seconds timeout for API call
+      );
       
       // 处理响应
       if (!response || !response.Choices || !response.Choices[0] || !response.Choices[0].Message || !response.Choices[0].Message.Content) {
@@ -252,11 +273,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-  } catch (error) {
-    console.error('处理请求时出错:', error);
+  } catch (error: any) {
+    console.error('Error in handler:', error);
+    
+    // 根据错误类型返回适当的状态码
+    if (error.name === 'AbortError') {
+      return res.status(504).json({ 
+        error: '请求处理超时',
+        details: error.message 
+      });
+    }
+    
     return res.status(500).json({ 
-      error: error instanceof Error ? error.message : '服务器内部错误',
-      detail: process.env.NODE_ENV === 'development' ? error : undefined
+      error: '服务器内部错误',
+      details: error.message 
     });
   }
 } 
