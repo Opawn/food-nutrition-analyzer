@@ -29,7 +29,7 @@
   ],
   "functions": {
     "api/analyze.ts": {
-      "maxDuration": 120
+      "maxDuration": 60
     }
   }
 }
