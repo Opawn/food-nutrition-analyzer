@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -11,15 +15,15 @@
   ],
   "routes": [
     {
-      "src": "^/assets/(.*)",
-      "dest": "/assets/$1"
+      "src": "/api/analyze",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/analyze.ts"
     },
     {
-      "src": "^/api/(.*)",
-      "dest": "/api/$1"
+      "handle": "filesystem"
     },
     {
-      "src": ".*",
+      "src": "/(.*)",
       "dest": "/index.html"
     }
   ]

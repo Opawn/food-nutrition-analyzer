@@ -1,5 +1,4 @@
 import express from 'express';
-import multer from 'multer';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { validateEnv } from './utils/env.js';
@@ -12,40 +11,23 @@ dotenv.config();
 validateEnv(['TENCENT_SECRET_ID', 'TENCENT_SECRET_KEY', 'NODE_ENV']);
 
 const app = express();
-const upload = multer({
-  limits: {
-    fileSize: 20 * 1024 * 1024 // 20MB
-  }
-});
 
+// 配置 CORS
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
-  methods: ['POST']
+  methods: ['POST', 'OPTIONS']
+}));
+
+// 配置 JSON 解析器，增加限制
+app.use(express.json({
+  limit: '20mb'
 }));
 
 // 路由处理
-app.post('/api/analyze', upload.single('file'), async (req, res) => {
+app.post('/api/analyze', async (req, res) => {
   try {
     console.log('Processing request...');
-    
-    if (!req.file) {
-      throw new Error('No file uploaded');
-    }
-
-    // 修改接口定义
-    interface ModifiedRequest extends Pick<VercelRequest, 'body' | 'method' | 'headers' | 'query' | 'cookies'> {
-      file?: Express.Multer.File;
-    }
-
-    const modifiedReq: ModifiedRequest = {
-      body: req.file.buffer,
-      method: 'POST',
-      headers: req.headers,
-      query: req.query as { [key: string]: string | string[] },
-      cookies: req.cookies || {},
-    };
-
-    await handler(modifiedReq as unknown as VercelRequest, res as unknown as VercelResponse);
+    await handler(req as unknown as VercelRequest, res as unknown as VercelResponse);
   } catch (error: Error | unknown) {
     console.error('Error in /api/analyze:', error);
     const err = error as Error;
