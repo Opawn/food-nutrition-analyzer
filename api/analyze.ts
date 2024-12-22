@@ -2,7 +2,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import sharp from 'sharp';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-
+export const maxDuration = 60;
 const clientConfig = {
   credential: {
     secretId: process.env.TENCENT_SECRET_ID,
