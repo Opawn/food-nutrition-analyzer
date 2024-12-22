@@ -23,7 +23,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.12.0",
     "sharp": "latest",
-    "tencentcloud-sdk-nodejs": "^4.0.996"
+    "tencentcloud-sdk-nodejs": "^4.0.996",
+    "tencentcloud-sdk-nodejs-hunyuan": "^4.0.996"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

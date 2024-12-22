@@ -112,12 +112,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const base64Image = processedImage.toString('base64');
 
     try {
-      // 导入SDK
-      const tencentcloud = require('tencentcloud-sdk-nodejs');
-      const HunyuanClient = tencentcloud.hunyuan.v20230901.Client;
-
+      // 导入SDK - 使用更明确的导入方式
+      const tencentcloud = require("tencentcloud-sdk-nodejs-hunyuan");
+      
       // 创建客户端实例
-      const client = new HunyuanClient(clientConfig);
+      const client = new tencentcloud.hunyuan.v20230901.Client({
+        credential: {
+          secretId: process.env.TENCENT_SECRET_ID,
+          secretKey: process.env.TENCENT_SECRET_KEY,
+        },
+        region: "ap-guangzhou",
+        profile: {
+          httpProfile: {
+            endpoint: "hunyuan.tencentcloudapi.com",
+          },
+        },
+      });
 
       // 构造请求参数
       const params = {
