@@ -26,5 +26,10 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/analyze.ts": {
+      "maxDuration": 300
+    }
+  }
 }
